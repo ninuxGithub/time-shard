@@ -1,0 +1,8 @@
+org\example\shard\ShardTableInitializer.class
+org\example\shard\AbstractShardedRepository.class
+org\example\shard\PageResult.class
+org\example\shard\ShardTableDescriptor.class
+org\example\shard\ShardRouter.class
+org\example\shard\ShardStrategy.class
+org\example\shard\ShardTableManager.class
+org\example\shard\AbstractShardedRepository$QueryParts.class
