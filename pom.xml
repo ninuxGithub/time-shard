@@ -65,4 +65,19 @@
             </plugin>
         </plugins>
     </build>
+
+
+    <distributionManagement>
+        <repository>
+            <id>gitee</id>
+            <name>Gitee Packages</name>
+            <url>https://gitee.com/ninuxGithub/maven-repo/packages</url>
+        </repository>
+        <snapshotRepository>
+            <id>gitee</id>
+            <name>Gitee Snapshots</name>
+            <url>https://gitee.com/ninuxGithub/maven-repo/packages/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
