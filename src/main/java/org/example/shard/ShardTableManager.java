@@ -21,6 +21,9 @@ public class ShardTableManager {
 
     private static final Logger log = LoggerFactory.getLogger(ShardTableManager.class);
 
+    /** Number of shard periods (e.g. months) created at startup, including the current one. */
+    private static final int INITIAL_SHARD_COUNT = 6;
+
     private final JdbcTemplate jdbcTemplate;
     private final List<ShardTableDescriptor> descriptors;
 
@@ -35,19 +38,23 @@ public class ShardTableManager {
         return descriptors;
     }
 
-    /** Create the template table plus the current and the next-period shard tables. */
+    /** Create the template table plus shard tables for the next {@link #INITIAL_SHARD_COUNT} periods. */
     public void initializeAll() {
         for (ShardTableDescriptor descriptor : descriptors) {
             createTemplateTable(descriptor);
-            LocalDateTime now = LocalDateTime.now();
-            ensureShardTable(descriptor, now);
-            ensureShardTable(descriptor, descriptor.strategy().next(now));
+            LocalDateTime time = LocalDateTime.now();
+            for (int i = 0; i < INITIAL_SHARD_COUNT; i++) {
+                ensureShardTable(descriptor, time);
+                time = descriptor.strategy().next(time);
+            }
         }
     }
 
     /** Create the template table if it does not exist. */
     public void createTemplateTable(ShardTableDescriptor descriptor) {
-        jdbcTemplate.execute(descriptor.createTemplateTableDDL());
+        String ddl = descriptor.createTemplateTableDDL();
+        log.info("Create template table DDL: {}", ddl);
+        jdbcTemplate.execute(ddl);
         log.info("Shard template table ensured: {}", descriptor.templateTable());
     }
 
@@ -57,6 +64,7 @@ public class ShardTableManager {
                 + descriptor.strategy().suffix(time);
         String sql = "CREATE TABLE IF NOT EXISTS `" + physicalTable + "` LIKE `"
                 + descriptor.templateTable() + "`";
+        log.info("Create shard table DDL: {}", sql);
         jdbcTemplate.execute(sql);
         log.debug("Shard table ensured: {}", physicalTable);
     }
